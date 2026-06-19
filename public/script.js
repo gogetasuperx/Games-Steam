@@ -3,7 +3,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const loading = document.getElementById('loading');
 
     fetch('/api/games')
-        .then(res => res.json())
+        .then(res => {
+            // Check if the server actually returned OK
+            if (!res.ok) {
+                throw new Error('Server returned an error: ' + res.status);
+            }
+            return res.json();
+        })
         .then(games => {
             loading.style.display = 'none';
             
@@ -18,14 +24,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 let actionButtons = '';
                 
-                // Playtest Button Logic
                 if (game.playtestLink) {
                     actionButtons += `<a href="${game.playtestLink}" target="_blank" class="btn btn-playtest">Join Playtest</a>`;
                 } else {
                     actionButtons += `<span class="btn btn-steam" style="pointer-events: none;">No Playtest Link Found</span>`;
                 }
 
-                // YouTube / Steam Button Logic
                 if (game.youtubeVideo) {
                     actionButtons += `<a href="${game.youtubeVideo}" target="_blank" class="btn btn-watch">▶ Watch on YouTube</a>`;
                 } else {
@@ -47,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .catch(err => {
             loading.style.display = 'none';
-            grid.innerHTML = '<p style="color: red;">Error loading games. Check console.</p>';
-            console.error(err);
+            grid.innerHTML = '<p style="color: red; text-align: center;">Error loading games. Check Vercel logs.</p>';
+            console.error('Frontend Error:', err);
         });
 });
